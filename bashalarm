@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+declare -a tests=(
+	"response_code GET https://www.github.com 301"
+	"response_contains GET https://github.com 'Built for developers'"
+)
+
+user_agent='bashalarm v0.1'
+
+log() {
+	echo $@ > /dev/stderr
+}
+
+
+response_code() {
+	local method="$1"
+	local url="$2"
+	local want="$3"
+	local have
+
+	have="$(
+		curl -sS \
+			-A "$user_agent" \
+			-w '%{http_code}' \
+			-o /dev/null \
+			-X "$method" \
+			"$url"
+		)"
+
+
+	if [ "$want" != "$have" ]; then
+		log "Unexpected response code $have"
+		return 1
+	fi
+
+	return 0
+}
+
+response_contains() {
+	local method="$1"; shift
+	local url="$1"; shift
+	local want="$@"
+	local have
+
+	curl -sS \
+		-A "$user_agent" \
+		-X "$method" \
+		"$url" | tac | grep -q "$want"
+}
+
+run() {
+	local failed_count=0
+
+	for item in "${tests[@]}"; do
+		eval $item
+		if [ $? == 0 ]; then
+			echo "PASS: $item"
+		else
+			((failed_count++))
+			echo "FAIL: $item"
+		fi
+	done
+
+	exit $failed_count
+}
+
+run
