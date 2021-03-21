@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 declare -a tests=(
-	"response_code GET https://www.github.com 301"
-	"response_contains GET https://github.com 'Built for developers'"
+	"response_code GET https://andarpersassi.it 200"
+	"response_code GET https://www.andarpersassi.it 301"
+	"response_contains GET https://andarpersassi.it 'Geologia e Geoturismo'"
+	"response_code GET https://www.cittadinanze.eu 200"
 )
 
 user_agent='bashalarm v0.1'
